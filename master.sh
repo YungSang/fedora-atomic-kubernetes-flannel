@@ -7,7 +7,6 @@ MINION_IP_ADDRS="%MINION_IP_ADDRS%"
 cd /tmp
 curl -OLs https://github.com/coreos/etcd/releases/download/v0.4.6/etcd-v0.4.6-linux-amd64.tar.gz
 tar zxvf etcd-v0.4.6-linux-amd64.tar.gz
-cp etcd-v0.4.6-linux-amd64/etcd /opt/bin
 cp etcd-v0.4.6-linux-amd64/etcdctl /opt/bin
 
 cat <<EOF > /etc/systemd/system/etcd.service
@@ -17,7 +16,7 @@ Description=etcd
 [Service]
 Environment=ETCD_DATA_DIR=/var/lib/etcd
 Environment=ETCD_NAME=%m
-ExecStart=/opt/bin/etcd \
+ExecStart=/usr/bin/etcd \
   -addr=${ADDR}:4001 \
   -peer-addr=${ADDR}:7001 \
   -discovery=http://${ETCD_DISCVERY}:4001/v2/keys/cluster
@@ -45,6 +44,7 @@ systemctl daemon-reload
 systemctl enable flannel.service
 systemctl start flannel.service
 
+systemctl disable docker.service
 cat <<EOF > /etc/systemd/system/docker.service
 [Unit]
 Description=Docker Application Container Engine
@@ -67,42 +67,18 @@ systemctl daemon-reload
 systemctl enable docker.service
 systemctl restart docker.service
 
-cat <<EOF > /etc/systemd/system/download-kubernetes.service
-[Unit]
-Before=apiserver.service
-Before=controller-manager.service
-Description=Download Kubernetes Binaries
-Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-
-[Service]
-ExecStart=/usr/bin/curl -Ls http://storage.googleapis.com/kubernetes/apiserver -o /opt/bin/apiserver
-ExecStart=/usr/bin/curl -Ls http://storage.googleapis.com/kubernetes/controller-manager -o /opt/bin/controller-manager
-ExecStart=/usr/bin/curl -Ls http://storage.googleapis.com/kubernetes/kubecfg -o /opt/bin/kubecfg
-ExecStart=/usr/bin/curl -Ls http://storage.googleapis.com/kubernetes/scheduler -o /opt/bin/scheduler
-ExecStart=/usr/bin/chmod +x /opt/bin/apiserver
-ExecStart=/usr/bin/chmod +x /opt/bin/controller-manager
-ExecStart=/usr/bin/chmod +x /opt/bin/kubecfg
-ExecStart=/usr/bin/chmod +x /opt/bin/scheduler
-RemainAfterExit=yes
-Type=oneshot
-EOF
-systemctl daemon-reload
-systemctl start download-kubernetes.service
-
 iptables -I INPUT 1 -p tcp --dport 8080 -j ACCEPT -m comment --comment "kube-apiserver"
 
-cat <<EOF > /etc/systemd/system/apiserver.service
+cat <<EOF > /etc/systemd/system/kube-apiserver.service
 [Unit]
-After=etcd.service
-After=download-kubernetes.service
-ConditionFileIsExecutable=/opt/bin/apiserver
+ConditionFileIsExecutable=/usr/bin/kube-apiserver
 Description=Kubernetes API Server
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 Wants=etcd.service
-Wants=download-kubernetes.service
+After=etcd.service
 
 [Service]
-ExecStart=/opt/bin/apiserver \
+ExecStart=/usr/bin/kube-apiserver \
   --address=127.0.0.1 \
   --port=8080 \
   --etcd_servers=http://127.0.0.1:4001 \
@@ -115,19 +91,19 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
-systemctl enable apiserver.service
-systemctl start apiserver.service
+systemctl enable kube-apiserver.service
+systemctl start kube-apiserver.service
 
-cat <<EOF > /etc/systemd/system/scheduler.service
+cat <<EOF > /etc/systemd/system/kube-scheduler.service
 [Unit]
-After=apiserver.service
-ConditionFileIsExecutable=/opt/bin/scheduler
+ConditionFileIsExecutable=/usr/bin/kube-scheduler
 Description=Kubernetes Scheduler
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
-Wants=apiserver.service
+Wants=kube-apiserver.service
+After=kube-apiserver.service
 
 [Service]
-ExecStart=/opt/bin/scheduler \
+ExecStart=/usr/bin/kube-scheduler \
   --logtostderr=true \
   --master=127.0.0.1:8080
 Restart=always
@@ -137,21 +113,19 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
-systemctl enable scheduler.service
-systemctl start scheduler.service
+systemctl enable kube-scheduler.service
+systemctl start kube-scheduler.service
 
-cat <<EOF > /etc/systemd/system/controller-manager.service
+cat <<EOF > /etc/systemd/system/kube-controller-manager.service
 [Unit]
-After=etcd.service
-After=download-kubernetes.service
-ConditionFileIsExecutable=/opt/bin/controller-manager
+ConditionFileIsExecutable=/usr/bin/kube-controller-manager
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 Wants=etcd.service
-Wants=download-kubernetes.service
+After=etcd.service
 
 [Service]
-ExecStart=/opt/bin/controller-manager \
+ExecStart=/usr/bin/kube-controller-manager \
   --master=127.0.0.1:8080 \
   --logtostderr=true
 Restart=always
@@ -161,5 +135,5 @@ RestartSec=10
 WantedBy=multi-user.target
 EOF
 systemctl daemon-reload
-systemctl enable controller-manager.service
-systemctl start controller-manager.service
+systemctl enable kube-controller-manager.service
+systemctl start kube-controller-manager.service
