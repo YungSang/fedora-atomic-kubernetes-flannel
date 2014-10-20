@@ -85,6 +85,7 @@ ExecStart=/usr/bin/kube-apiserver \
   -port=8080 \
   -etcd_servers=http://127.0.0.1:4001 \
   -machines=${MINION_IP_ADDRS} \
+  -portal_net=10.100.0.0/16 \
   -logtostderr=true
 Restart=always
 RestartSec=10
