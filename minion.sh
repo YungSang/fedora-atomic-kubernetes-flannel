@@ -47,7 +47,9 @@ After=flannel.service
 EnvironmentFile=/run/flannel/subnet.env
 ExecStartPre=-/usr/sbin/ip link set dev docker0 down
 ExecStartPre=-/usr/sbin/ip link del dev docker0
-ExecStart=/usr/bin/docker -d -H fd:// --selinux-enabled --bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}
+ExecStart=/usr/bin/docker -d -H fd:// --selinux-enabled \
+  --bip=\${FLANNEL_SUBNET} \
+  --mtu=\${FLANNEL_MTU}
 Restart=on-failure
 RestartSec=5
 
@@ -70,11 +72,11 @@ After=etcd.service
 
 [Service]
 ExecStart=/usr/bin/kubelet \
-  --address=0.0.0.0 \
-  --port=10250 \
-  --hostname_override=${ADDR} \
-  --etcd_servers=http://127.0.0.1:4001 \
-  --logtostderr=true
+  -address=0.0.0.0 \
+  -port=10250 \
+  -hostname_override=${ADDR} \
+  -etcd_servers=http://127.0.0.1:4001 \
+  -logtostderr=true
 Restart=always
 RestartSec=10
 
@@ -94,7 +96,9 @@ Wants=etcd.service
 After=etcd.service
 
 [Service]
-ExecStart=/usr/bin/kube-proxy --etcd_servers=http://127.0.0.1:4001 --logtostderr=true
+ExecStart=/usr/bin/kube-proxy \
+  -etcd_servers=http://127.0.0.1:4001 \
+  -logtostderr=true
 Restart=always
 RestartSec=10
 

@@ -56,7 +56,9 @@ After=flannel.service
 EnvironmentFile=/run/flannel/subnet.env
 ExecStartPre=-/usr/sbin/ip link set dev docker0 down
 ExecStartPre=-/usr/sbin/ip link del dev docker0
-ExecStart=/usr/bin/docker -d -H fd:// --selinux-enabled --bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}
+ExecStart=/usr/bin/docker -d -H fd:// --selinux-enabled \
+  --bip=\${FLANNEL_SUBNET} \
+  --mtu=\${FLANNEL_MTU}
 Restart=on-failure
 RestartSec=5
 
@@ -79,11 +81,11 @@ After=etcd.service
 
 [Service]
 ExecStart=/usr/bin/kube-apiserver \
-  --address=127.0.0.1 \
-  --port=8080 \
-  --etcd_servers=http://127.0.0.1:4001 \
-  --machines=${MINION_IP_ADDRS} \
-  --logtostderr=true
+  -address=127.0.0.1 \
+  -port=8080 \
+  -etcd_servers=http://127.0.0.1:4001 \
+  -machines=${MINION_IP_ADDRS} \
+  -logtostderr=true
 Restart=always
 RestartSec=10
 
@@ -104,8 +106,8 @@ After=kube-apiserver.service
 
 [Service]
 ExecStart=/usr/bin/kube-scheduler \
-  --logtostderr=true \
-  --master=127.0.0.1:8080
+  -logtostderr=true \
+  -master=127.0.0.1:8080
 Restart=always
 RestartSec=10
 
@@ -126,8 +128,8 @@ After=etcd.service
 
 [Service]
 ExecStart=/usr/bin/kube-controller-manager \
-  --master=127.0.0.1:8080 \
-  --logtostderr=true
+  -master=127.0.0.1:8080 \
+  -logtostderr=true
 Restart=always
 RestartSec=10
 
