@@ -56,7 +56,7 @@ After=flannel.service
 EnvironmentFile=/run/flannel/subnet.env
 ExecStartPre=-/usr/sbin/ip link set dev docker0 down
 ExecStartPre=-/usr/sbin/ip link del dev docker0
-ExecStart=/usr/bin/docker -d -H fd:// --selinux-enabled --storage-opt dm.fs=xfs --bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}
+ExecStart=/usr/bin/docker -d -H fd:// --selinux-enabled --bip=\${FLANNEL_SUBNET} --mtu=\${FLANNEL_MTU}
 Restart=on-failure
 RestartSec=5
 
