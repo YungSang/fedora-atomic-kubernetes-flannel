@@ -2,6 +2,9 @@
 
 It works same as [Running Kubernetes Example on CoreOS, Part 2 with flannel (formerly Rudder)](https://gist.github.com/YungSang/6177b69f1754f0590dbe).
 
+Ref.) https://github.com/GoogleCloudPlatform/kubernetes/tree/master/docs/getting-started-guides/coreos  
+Ref.) https://github.com/GoogleCloudPlatform/kubernetes/tree/master/examples/guestbook  
+
 # Step Zero: Build up a Kubernetes cluster
 
 ```
