@@ -14,7 +14,7 @@ MINION_IP_ADDRS = NUM_MINIONS.times.collect { |i| BASE_IP_ADDR + ".#{i+11}" }
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "yungsang/fedora-atomic"
 
-  config.vm.box_version = ">= 1.2.1"
+  config.vm.box_version = ">= 1.4.0"
 
   config.vm.define "discovery" do |discovery|
     discovery.vm.hostname = "discovery"
