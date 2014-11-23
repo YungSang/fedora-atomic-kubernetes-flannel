@@ -39,17 +39,22 @@ systemctl disable docker.service
 cat <<EOF > /etc/systemd/system/docker.service
 [Unit]
 Description=Docker Application Container Engine
-Documentation=http://docs.docker.io
-Requires=flannel.service
-After=flannel.service
+Documentation=http://docs.docker.com
+After=network.target docker.socket flannel.service
+Requires=docker.socket flannel.service
 
 [Service]
+Type=notify
+EnvironmentFile=-/etc/sysconfig/docker
+EnvironmentFile=-/etc/sysconfig/docker-storage
 EnvironmentFile=/run/flannel/subnet.env
 ExecStartPre=-/usr/sbin/ip link set dev docker0 down
 ExecStartPre=-/usr/sbin/ip link del dev docker0
-ExecStart=/usr/bin/docker -d -H fd:// --selinux-enabled \
+ExecStart=/usr/bin/docker -d -H fd:// \$OPTIONS \$DOCKER_STORAGE_OPTIONS \
   --bip=\${FLANNEL_SUBNET} \
   --mtu=\${FLANNEL_MTU}
+LimitNOFILE=1048576
+LimitNPROC=1048576
 Restart=on-failure
 RestartSec=5
 
