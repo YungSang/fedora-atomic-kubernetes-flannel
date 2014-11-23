@@ -5,7 +5,7 @@ It works same as [Running Kubernetes Example on CoreOS, Part 2 with flannel (for
 # Step Zero: Build up a Kubernetes cluster
 
 ```
-$ git clone https://gist.github.com/817b4bf78b58773ccfd8.git
+$ git clone https://github.com/YungSang/fedora-atomic-kubernetes-flannel.git
 $ vagrant up
 ```
 
