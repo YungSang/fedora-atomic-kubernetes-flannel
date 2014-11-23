@@ -89,7 +89,6 @@ ExecStart=/usr/bin/kube-apiserver \
   -address=127.0.0.1 \
   -port=8080 \
   -etcd_servers=http://127.0.0.1:4001 \
-  -machines=${MINION_IP_ADDRS} \
   -portal_net=10.100.0.0/16 \
   -logtostderr=true
 Restart=always
@@ -135,6 +134,7 @@ After=etcd.service
 [Service]
 ExecStart=/usr/bin/kube-controller-manager \
   -master=127.0.0.1:8080 \
+  -machines=${MINION_IP_ADDRS} \
   -logtostderr=true
 Restart=always
 RestartSec=10
