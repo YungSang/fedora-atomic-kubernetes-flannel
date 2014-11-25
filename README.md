@@ -19,12 +19,12 @@ It will boot up one for etcd `discovery`, one `master` and two minion servers (`
 Setup an SSH tunnel to the Kubernetes API Server in order to use `kubecfg` on your local machine.
 
 ```
-$ curl -OL https://github.com/GoogleCloudPlatform/kubernetes/releases/download/v0.5.2/kubernetes.tar.gz
+$ curl -OL https://github.com/GoogleCloudPlatform/kubernetes/releases/download/v0.5.3/kubernetes.tar.gz
 $ tar zxvf kubernetes.tar.gz kubernetes/platforms/darwin/amd64/kubecfg
 x ./kubernetes/platforms/darwin/amd64/kubecfg
 $ cp ./kubernetes/platforms/darwin/amd64/kubecfg /usr/local/bin
 $ kubecfg -version
-Kubernetes v0.5.2
+Kubernetes v0.5.3
 ```
 
 ```
