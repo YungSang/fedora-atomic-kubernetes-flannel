@@ -54,6 +54,7 @@ Requires=docker.socket flannel.service
 
 [Service]
 Type=notify
+WorkingDirectory=/etc
 EnvironmentFile=-/etc/sysconfig/docker
 EnvironmentFile=-/etc/sysconfig/docker-storage
 EnvironmentFile=/run/flannel/subnet.env
